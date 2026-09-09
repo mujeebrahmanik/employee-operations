@@ -10,6 +10,9 @@ class User(AbstractUser):
 
     email = models.EmailField(unique=True)
 
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
+
     role = models.CharField(
         max_length=20,
         choices=Role.choices,
@@ -34,4 +37,6 @@ class User(AbstractUser):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    
 
