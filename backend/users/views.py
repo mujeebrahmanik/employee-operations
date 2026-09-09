@@ -12,9 +12,36 @@ class LoginView(APIView):
         serializer = LoginSerializer(data=request.data)
 
         serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
 
-        return Response(
-            serializer.validated_data,
-            status=status.HTTP_200_OK
+        response = Response(
+            {
+                'user' : data['user'],
+            },
+                status= status.HTTP_200_OK
         )
+
+        response.set_cookie(
+            key="access_token",
+            value=data['access'],
+            httponly=True,
+            secure=True,
+            samesite='Lax',
+            max_age=30*60
+        )
+
+        response.set_cookie(
+            key="refresh_token",
+            value=data['refresh'],
+            httponly=True,
+            secure=True,
+            samesite='Lax',
+            max_age=7 * 24 * 60 * 60,
+        )
+
+        return response
+
+
+
+        
 
