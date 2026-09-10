@@ -111,3 +111,11 @@ def test_me_authenticated():
 
     assert response.status_code == 200
     assert response.data['email'] == 'test@example.com'
+
+
+@pytest.mark.django_db
+def test_me_unauthenticated():
+    client = APIClient()
+
+    response = client.get('/api/auth/me/')
+    assert response.status_code == 401
