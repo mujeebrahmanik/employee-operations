@@ -62,3 +62,27 @@ def test_login_nonesistent_email():
     )
 
     assert response.status_code == 400
+
+
+@pytest.mark.django_db
+def test_login_inactive_user():
+    user = User.objects.create_user(
+        username='inactiveuser',
+        email='test@example.com',
+        password='testpassword123'
+    )
+
+    user.is_active=False
+    user.save()
+
+    client = APIClient()
+
+    response = client.post(
+        '/api/auth/login/',
+        {
+            'email':'test@example.com',
+            'password':'testpassword123'
+        }
+    )
+
+    assert response.status_code == 400
