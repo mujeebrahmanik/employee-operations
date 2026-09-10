@@ -101,3 +101,30 @@ class RefreshView(APIView):
         )
 
         return response
+
+
+class LogoutView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self,request):
+        refresh_token = request.COOKIES.get('refresh_token')
+
+        if refresh_token:
+            try:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+            except Exception:
+                pass
+
+        response = Response(
+            {
+                'message' : 'Logged out successfully'
+            },
+            status=status.HTTP_200_OK
+        )
+
+        response.delete_cookie('refresh_token')
+        response.delete_cookie('access_token')
+
+        return response
