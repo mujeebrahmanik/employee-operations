@@ -86,3 +86,28 @@ def test_login_inactive_user():
     )
 
     assert response.status_code == 400
+
+
+@pytest.mark.django_db
+def test_me_authenticated():
+    User.objects.create_user(
+        username='testUser',
+        email='test@example.com',
+        password='testpassword123'
+    )
+
+    client = APIClient()
+    login_response = client.post(
+        '/api/auth/login/',
+        {
+            'email':'test@example.com',
+            'password':'testpassword123'
+        }
+    )
+
+    assert login_response.status_code == 200
+
+    response = client.get('/api/auth/me/')
+
+    assert response.status_code == 200
+    assert response.data['email'] == 'test@example.com'
