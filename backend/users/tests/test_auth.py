@@ -147,3 +147,35 @@ def test_refresh_success():
 
     assert response.status_code == 200
     assert "access_token" in response.cookies
+
+
+@pytest.mark.django_db
+def test_refresh_token_rotation():
+    User.objects.create_user(
+        username='testuser',
+        email='test@example.com',
+        password='testpassword123'
+    )
+
+    client = APIClient()
+
+    login_response = client.post(
+        '/api/auth/login/',
+        {
+            'email':'test@example.com',
+            'password':'testpassword123'
+        }
+    )
+
+    assert login_response.status_code == 200
+
+    old_refresh_token = client.cookies['refresh_token'].value
+
+    response = client.post('/api/auth/refresh/')
+    assert 'refresh_token' in response.cookies
+
+    new_refresh_token = response.cookies['refresh_token'].value
+
+    assert new_refresh_token != old_refresh_token
+
+    
