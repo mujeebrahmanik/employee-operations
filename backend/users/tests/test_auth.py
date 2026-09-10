@@ -26,3 +26,24 @@ def test_login_success():
 
     assert 'access_token' in response.cookies
     assert 'refresh_token' in response.cookies 
+
+
+@pytest.mark.django_db
+def test_with_wrong_password():
+    User.objects.create_user(
+        username = 'testuser',
+        email = 'test@example.com',
+        password = 'testpassword123'
+    )
+
+    client = APIClient()
+
+    response = client.post(
+        '/api/auth/login/',
+        {
+            'email':'test@example.com',
+            'password':'wrongpassword'
+        },
+    )
+
+    assert response.status_code == 400
