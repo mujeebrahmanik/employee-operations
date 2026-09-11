@@ -211,3 +211,13 @@ def test_old_refresh_token_not_reusable():
     response = client.post('/api/auth/refresh/')
 
     assert response.status_code == 401
+
+
+
+@pytest.mark.django_db
+def test_refresh_without_refresh_token():
+    client = APIClient()
+
+    response = client.post('/api/auth/refresh/')
+
+    assert response.status_code == 401
