@@ -221,3 +221,35 @@ def test_refresh_without_refresh_token():
     response = client.post('/api/auth/refresh/')
 
     assert response.status_code == 401
+
+
+@pytest.mark.django_db
+def test_logout_success():
+    User.objects.create_user(
+        username='testuser',
+        email='test@example.com',
+        password='testpassword123'
+    )
+
+    client = APIClient()
+
+    login_response = client.post(
+        '/api/auth/login/',
+        {
+            'email':'test@example.com',
+            'password':'testpassword123'
+        }
+    )
+
+    assert login_response.status_code == 200
+    assert 'refresh_token' in client.cookies
+    assert 'access_token' in client.cookies
+
+    response = client.post('/api/auth/logout/')
+
+    assert response.status_code == 200
+    assert response.cookies["access_token"]["max-age"] == 0
+    assert response.cookies["refresh_token"]["max-age"] == 0
+
+    assert response.cookies["access_token"].value == ""
+    assert response.cookies["refresh_token"].value == ""
