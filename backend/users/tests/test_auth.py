@@ -178,4 +178,36 @@ def test_refresh_token_rotation():
 
     assert new_refresh_token != old_refresh_token
 
-    
+
+
+@pytest.mark.django_db
+def test_old_refresh_token_not_reusable():
+    User.objects.create_user(
+        username='testuser',
+        email='test@example.com',
+        password='testpassword123'
+    )
+
+    client = APIClient()
+
+    login_response = client.post(
+        '/api/auth/login/',
+        {
+            'email':'test@example.com',
+            'password':'testpassword123'
+        }
+    )
+
+    assert login_response.status_code == 200
+
+    old_refresh_token = client.cookies['refresh_token'].value
+
+    response = client.post('/api/auth/refresh/')
+
+    assert response.status_code == 200
+
+    client.cookies['refresh_token'] = old_refresh_token
+
+    response = client.post('/api/auth/refresh/')
+
+    assert response.status_code == 401
