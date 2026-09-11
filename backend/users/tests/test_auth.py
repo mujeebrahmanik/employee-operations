@@ -253,3 +253,36 @@ def test_logout_success():
 
     assert response.cookies["access_token"].value == ""
     assert response.cookies["refresh_token"].value == ""
+
+
+@pytest.mark.django_db
+def test_refresh_token_cannot_be_used_after_logout():
+    User.objects.create_user(
+        username='testuser',
+        email='test@example.com',
+        password='testpassword123'
+    )
+
+    client = APIClient()
+
+    login_response = client.post(
+        '/api/auth/login/',
+        {
+            'email':'test@example.com',
+            'password':'testpassword123'
+        }
+    )
+
+    assert login_response.status_code == 200
+
+    refresh_token = client.cookies['refresh_token'].value
+
+    logout_response = client.post('/api/auth/logout/')
+
+    assert logout_response.status_code == 200
+
+    client.cookies['refresh_token'] = refresh_token
+
+    response = client.post('/api/auth/refresh/')
+
+    assert response.status_code == 401
