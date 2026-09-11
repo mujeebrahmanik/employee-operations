@@ -286,3 +286,14 @@ def test_refresh_token_cannot_be_used_after_logout():
     response = client.post('/api/auth/refresh/')
 
     assert response.status_code == 401
+
+
+@pytest.mark.django_db
+def test_me_with_invalid_token():
+    client = APIClient()
+
+    client.cookies['access_token'] = 'invalid-token'
+
+    response = client.get('/api/auth/me/')
+
+    assert response.status_code == 401
