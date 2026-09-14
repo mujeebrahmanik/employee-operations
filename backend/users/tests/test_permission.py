@@ -45,3 +45,4 @@ def test_non_admin_has_no_permission(role):
     permission = IsAdmin()
 
     assert permission.has_permission(request,None) is False
+
