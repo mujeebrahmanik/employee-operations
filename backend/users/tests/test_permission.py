@@ -11,3 +11,11 @@ def test_admin_has_permission():
         password='password123',
         role=User.Role.ADMIN,
     )
+
+    factory = APIRequestFactory()
+    request = factory.get('/')
+
+    request.user= user
+    permission = IsAdmin()
+
+    assert permission.has_permission(request,None) is True
