@@ -9,3 +9,8 @@ class IsAdmin(BasePermission):
 class IsManager(BasePermission):
     def has_permission(self, request, view):
         return request.user.role == User.Role.MANAGER
+
+
+class IsEmployee(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.role == User.Role.EMPLOYEE
