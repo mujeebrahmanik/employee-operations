@@ -141,3 +141,21 @@ def test_admin_or_manager_has_permission(role):
     permission = IsAdminOrManager()
 
     assert permission.has_permission(request,None) is True
+
+@pytest.mark.django_db
+def test_employee_has_no_admin_or_manager_permission():
+    user = User.objects.create_user(
+        username="employee",
+        email="employee@example.com",
+        password="password123",
+        role=User.Role.EMPLOYEE,
+    )
+
+    factory = APIRequestFactory()
+    request = factory.get("/")
+
+    request.user = user
+
+    permission = IsAdminOrManager()
+
+    assert permission.has_permission(request, None) is False
