@@ -14,3 +14,10 @@ class IsManager(BasePermission):
 class IsEmployee(BasePermission):
     def has_permission(self, request, view):
         return request.user.role == User.Role.EMPLOYEE
+
+class IsAdminOrManager(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.role in [
+            User.Role.MANAGER,
+            User.Role.ADMIN,
+        ]
