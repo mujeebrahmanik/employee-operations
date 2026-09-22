@@ -1,7 +1,7 @@
 import pytest
 from rest_framework.test import APIRequestFactory
 from users.models import User
-from users.permissions import IsAdmin,IsManager,IsEmployee
+from users.permissions import IsAdmin,IsManager,IsEmployee,IsAdminOrManager
 
 @pytest.mark.django_db
 def test_admin_has_permission():
@@ -116,4 +116,28 @@ def test_manager_has_no_employee_permission():
     permission = IsEmployee()
 
     assert permission.has_permission(request,None) is False
-    
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    'role',
+    [
+        User.Role.MANAGER,
+        User.Role.ADMIN,
+    ],
+)
+def test_admin_or_manager_has_permission(role):
+    user = User.objects.create_user(
+        username='user',
+        email='user@example.com',
+        password='password123',
+        role=role
+    )
+
+    factory = APIRequestFactory()
+    request = factory.get('/')
+
+    request.user= user
+    permission = IsAdminOrManager()
+
+    assert permission.has_permission(request,None) is True
