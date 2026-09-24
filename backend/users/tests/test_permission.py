@@ -236,3 +236,12 @@ def test_employee_cannot_access_admin_endpoint():
     response = client.get('/api/auth/admin-test/')
 
     assert response.status_code == 403
+    
+
+@pytest.mark.django_db
+def test_unauthenticated_cannot_access_admin_endpoint():
+    client = APIClient()
+
+    response = client.get("/api/auth/admin-test/")
+
+    assert response.status_code == 401
