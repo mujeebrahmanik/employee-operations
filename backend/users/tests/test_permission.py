@@ -1,5 +1,5 @@
 import pytest
-from rest_framework.test import APIRequestFactory
+from rest_framework.test import APIRequestFactory,APIClient
 from users.models import User
 from users.permissions import IsAdmin,IsManager,IsEmployee,IsAdminOrManager
 
@@ -159,3 +159,30 @@ def test_employee_has_no_admin_or_manager_permission():
     permission = IsAdminOrManager()
 
     assert permission.has_permission(request, None) is False
+
+
+
+@pytest.mark.django_db
+def test_admin_can_access_admin_endpoint():
+    user = User.objects.create_user(
+        username="admin",
+        email="admin@example.com",
+        password="password123",
+        role=User.Role.ADMIN,
+    )
+
+    client = APIClient()
+
+    login_response = client.post(
+        '/api/auth/login/',
+        {
+            "email":"admin@example.com",
+            "password":"password123",
+        }
+    )
+
+    assert login_response.status_code == 200
+    response = client.get('/api/auth/admin-test/')
+
+    assert response.status_code == 200
+    assert response.data['message'] == 'you have admin access'

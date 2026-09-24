@@ -7,6 +7,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.exceptions import TokenError
+from .permissions import *
 
 
 from .serializers import *
@@ -141,3 +142,11 @@ class LogoutView(APIView):
         response.delete_cookie('access_token')
 
         return response
+
+class AdminTestView(APIView):
+    permission_classes = [IsAuthenticated,IsAdmin]
+
+    def get(self,request):
+        return Response({
+            'message':'you have admin access'
+        })
