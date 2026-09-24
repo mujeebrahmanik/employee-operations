@@ -186,3 +186,28 @@ def test_admin_can_access_admin_endpoint():
 
     assert response.status_code == 200
     assert response.data['message'] == 'you have admin access'
+
+
+@pytest.mark.django_db
+def test_manager_cannot_access_admin_endpoint():
+    user = User.objects.create_user(
+        username="manager",
+        email="manager@example.com",
+        password="password123",
+        role=User.Role.MANAGER,
+    )
+
+    client = APIClient()
+
+    login_response = client.post(
+        '/api/auth/login/',
+        {
+            "email":"manager@example.com",
+            "password":"password123",
+        }
+    )
+
+    assert login_response.status_code == 200
+    response = client.get('/api/auth/admin-test/')
+
+    assert response.status_code == 403
