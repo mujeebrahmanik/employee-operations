@@ -7,9 +7,9 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.exceptions import TokenError
-
-
+from .permissions import *
 from .serializers import *
+from rest_framework import generics
 
 
 class LoginView(APIView):
@@ -141,3 +141,36 @@ class LogoutView(APIView):
         response.delete_cookie('access_token')
 
         return response
+
+class AdminTestView(APIView):
+    permission_classes = [IsAuthenticated,IsAdmin]
+
+    def get(self,request):
+        return Response({
+            'message':'you have admin access'
+        })
+
+
+class EmployeeListCreateView(generics.ListCreateAPIView):
+    def get_queryset(self):
+        if self.request.user.role == User.Role.ADMIN:
+            return User.objects.all()
+        
+        if self.request.user.role == User.Role.MANAGER:
+            return User.objects.filter(
+                manager = self.request.user
+            )
+
+        return User.objects.none()
+
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return EmployeeCreateSerializer
+        return EmployeeSerializer
+
+    def get_permissions(self):
+
+        if self.request.method == 'POST':
+            return [IsAuthenticated(),IsAdmin()]
+        return [IsAuthenticated(),IsAdminOrManager()]

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from .models import User
 
 
 class LoginSerializer(serializers.Serializer):
@@ -38,3 +39,33 @@ class LoginSerializer(serializers.Serializer):
                 'role':user.role
             },
         }
+
+class EmployeeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "id","username","email","first_name","last_name","department","manager","is_active","created_at"
+        ]
+        read_only_fields=[
+            "id","created_at"
+        ]
+
+
+class EmployeeCreateSerializer(serializers.ModelSerializer):
+
+    password = serializers.CharField(write_only = True)
+    class Meta:
+        model = User
+        fields = [
+            "id","username","email","first_name","last_name","department","manager","is_active","created_at"
+        ]
+
+    def create(self, validated_data):
+        password = validated_data.pop('passowrd')
+        return User.objects.create_user(
+            password=password,
+            **validated_data
+        )
+
+
+    
