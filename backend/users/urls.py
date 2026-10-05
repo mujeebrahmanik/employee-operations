@@ -7,5 +7,6 @@ urlpatterns = [
     path('me/',MeView.as_view(),name='me'),
     path('refresh/',RefreshView.as_view(),name='refresh'),
     path('logout/',LogoutView.as_view(),name='logout'),
-    path('admin-test/',AdminTestView.as_view(),name='test')
+    path('admin-test/',AdminTestView.as_view(),name='test'),
+    path('users/',EmployeeListView.as_view(),name='employee-list')
 ]
