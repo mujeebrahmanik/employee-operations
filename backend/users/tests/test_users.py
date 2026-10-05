@@ -129,3 +129,52 @@ def test_employee_cannot_list_employees():
     response = client.get('/api/users/')
 
     assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_admin_can_create_employee():
+    admin = User.objects.create_user(
+        username="admin",
+        email="admin@example.com",
+        password="password123",
+        role=User.Role.ADMIN,
+    )
+
+    client = APIClient()
+
+    login_response = client.post(
+        '/api/auth/login/',
+        {
+            'email':'admin@example.com',
+            'password':'password123'
+        }
+    )
+
+    assert login_response.status_code == 200
+
+    response = client.post(
+        '/api/users/',
+        {
+            "username": "employee1",
+            "email": "employee1@example.com",
+            "password": "employee123",
+            "first_name": "John",
+            "last_name": "Doe",
+            "role": User.Role.EMPLOYEE,
+        },
+        format='json'
+    )
+
+    assert response.status_code == 201
+
+    employee = User.objects.get(
+        email='employee1@example.com'
+    )
+
+    assert employee.username == 'employee1'
+    assert employee.role == User.Role.EMPLOYEE
+    assert employee.check_password('employee123')
+    assert employee.password != 'employee123'
+
+    assert 'password' not in response.data
+

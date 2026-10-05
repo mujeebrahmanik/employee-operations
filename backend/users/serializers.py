@@ -57,11 +57,11 @@ class EmployeeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            "id","username","email","first_name","last_name","department","manager","is_active","created_at"
+            "id","username","email","first_name","last_name","password","department","manager","is_active","created_at"
         ]
 
     def create(self, validated_data):
-        password = validated_data.pop('passowrd')
+        password = validated_data.pop('password')
         return User.objects.create_user(
             password=password,
             **validated_data
