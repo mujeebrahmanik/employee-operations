@@ -152,7 +152,7 @@ class AdminTestView(APIView):
 
 
 class EmployeeListView(generics.ListAPIView):
-    serializer_class = [EmployeeSerializer]
+    serializer_class = EmployeeSerializer
     permission_classes = [IsAuthenticated,IsAdminOrManager]
 
     def get_queryset(self):
