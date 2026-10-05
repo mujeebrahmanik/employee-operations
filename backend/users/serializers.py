@@ -49,3 +49,23 @@ class EmployeeSerializer(serializers.ModelSerializer):
         read_only_fields=[
             "id","created_at"
         ]
+
+
+class EmployeeCreateSerializer(serializers.ModelSerializer):
+
+    password = serializers.CharField(write_only = True)
+    class Meta:
+        model = User
+        fields = [
+            "id","username","email","first_name","last_name","department","manager","is_active","created_at"
+        ]
+
+    def create(self, validated_data):
+        password = validated_data.pop('passowrd')
+        return User.objects.create_user(
+            password=password,
+            **validated_data
+        )
+
+
+    

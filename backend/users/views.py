@@ -151,10 +151,7 @@ class AdminTestView(APIView):
         })
 
 
-class EmployeeListView(generics.ListAPIView):
-    serializer_class = EmployeeSerializer
-    permission_classes = [IsAuthenticated,IsAdminOrManager]
-
+class EmployeeListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         if self.request.user.role == User.Role.ADMIN:
             return User.objects.all()
@@ -165,3 +162,15 @@ class EmployeeListView(generics.ListAPIView):
             )
 
         return User.objects.none()
+
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return EmployeeCreateSerializer
+        return EmployeeSerializer
+
+    def get_permissions(self):
+
+        if self.request.method == 'POST':
+            return [IsAuthenticated(),IsAdmin()]
+        return [IsAuthenticated(),IsAdminOrManager()]
