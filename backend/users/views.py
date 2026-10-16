@@ -174,3 +174,22 @@ class EmployeeListCreateView(generics.ListCreateAPIView):
         if self.request.method == 'POST':
             return [IsAuthenticated(),IsAdmin()]
         return [IsAuthenticated(),IsAdminOrManager()]
+    
+
+class EmployeeDetailview(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = EmployeeSerializer
+    permission_classes = [IsAuthenticated,IsAdminOrManager]
+
+    def get_queryset(self):
+        if self.request.user.role == User.Role.ADMIN:
+            return User.objects.all()
+
+        if self.request.user.role == User.Role.MANAGER:
+            return User.objects.filter(
+                manager=self.request.user
+        )
+        return User.objects.none()
+
+    def perform_destroy(self, instance):
+        instance.is_active = False
+        instance.save(update_fields=['is_active'])
