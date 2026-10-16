@@ -178,3 +178,161 @@ def test_admin_can_create_employee():
 
     assert 'password' not in response.data
 
+
+@pytest.mark.django_db
+def test_manager_cannot_create_employee():
+    User.objects.create_user(
+        username="manager",
+        email="manager@example.com",
+        password="password123",
+        role=User.Role.MANAGER,
+    )
+
+    client = APIClient()
+
+    login_response = client.post(
+        "/api/auth/login/",
+        {
+            "email": "manager@example.com",
+            "password": "password123",
+        },
+    )
+
+    assert login_response.status_code == 200
+
+    response = client.post(
+        "/api/users/",
+        {
+            "username": "employee1",
+            "email": "employee1@example.com",
+            "password": "employee123",
+            "role": User.Role.EMPLOYEE,
+        },
+        format="json",
+    )
+
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_employee_cannot_create_employee():
+    User.objects.create_user(
+        username="employee",
+        email="employee@example.com",
+        password="password123",
+        role=User.Role.EMPLOYEE,
+    )
+
+    client = APIClient()
+
+    login_response = client.post(
+        "/api/auth/login/",
+        {
+            "email": "employee@example.com",
+            "password": "password123",
+        },
+    )
+
+    assert login_response.status_code == 200
+
+    response = client.post(
+        "/api/users/",
+        {
+            "username": "employee2",
+            "email": "employee2@example.com",
+            "password": "password123",
+            "role": User.Role.EMPLOYEE,
+        },
+        format="json",
+    )
+
+    assert response.status_code == 403
+
+    assert not User.objects.filter(
+        email="employee2@example.com"
+    ).exists()
+
+
+@pytest.mark.django_db
+def test_admin_cannot_create_employee_with_duplicate_email():
+    User.objects.create_user(
+        username="admin",
+        email="admin@example.com",
+        password="password123",
+        role=User.Role.ADMIN,
+    )
+
+    User.objects.create_user(
+        username="existing",
+        email="existing@example.com",
+        password="password123",
+        role=User.Role.EMPLOYEE,
+    )
+
+    client = APIClient()
+
+    login_response = client.post(
+        "/api/auth/login/",
+        {
+            "email": "admin@example.com",
+            "password": "password123",
+        },
+    )
+
+    assert login_response.status_code == 200
+
+    response = client.post(
+        "/api/users/",
+        {
+            "username": "newemployee",
+            "email": "existing@example.com",
+            "password": "employee123",
+            "role": User.Role.EMPLOYEE,
+        },
+        format="json",
+    )
+
+    assert response.status_code == 400
+    assert not User.objects.filter(
+        username="newemployee"
+    ).exists()
+
+
+
+
+@pytest.mark.django_db
+def test_admin_cannot_create_employee_with_invalid_email():
+    User.objects.create_user(
+        username="admin",
+        email="admin@example.com",
+        password="password123",
+        role=User.Role.ADMIN,
+    )
+
+    client = APIClient()
+
+    login_response = client.post(
+        "/api/auth/login/",
+        {
+            "email": "admin@example.com",
+            "password": "password123",
+        },
+    )
+
+    assert login_response.status_code == 200
+
+    response = client.post(
+        "/api/users/",
+        {
+            "username": "newemployee",
+            "email": "not-an-email",
+            "password": "employee123",
+            "role": User.Role.EMPLOYEE,
+        },
+        format="json",
+    )
+
+    assert response.status_code == 400
+    assert not User.objects.filter(
+        username="newemployee"
+    ).exists()
