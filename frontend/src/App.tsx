@@ -1,12 +1,20 @@
 
 import './App.css'
+import { BrowserRouter,Routes,Route } from 'react-router-dom'
+import DashboardLayout from './components/layout/DashboardLayout'
+import HomePage from './components/pages/HomePage'
 
 function App() {
  
   return (
     <>
-    <h1 className='font-bold text-center'>Employee Operations</h1>
-    <p className='font-medium text-center'>Dashboard is on progress</p>
+    <BrowserRouter>
+    <Routes>
+      <Route element={<DashboardLayout/>} >
+        <Route path='/' element={<HomePage/>} />
+      </Route>
+    </Routes>
+    </BrowserRouter>
       
     </>
   )

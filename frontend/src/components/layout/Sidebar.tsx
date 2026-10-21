@@ -50,6 +50,31 @@ const Sidebar = () => {
             <p className="text-xs text-slate-500">Employee Operations</p>
             </div>
         </div>
+
+        {/* navigation */}
+        <nav className="flex-1 space-y-1 overflow-auto px-4 py-6">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wider px-6">
+                workspace
+            </p>
+
+            {navItems.map((i)=>{
+                const Icon = i.icon;
+                return(
+                    <NavLink
+                        key={i.path}
+                        to={i.path}
+                        end={i.path === '/'}
+                        className={({isActive})=>`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium
+                        transition-colors ${isActive ? 'bg-indigo-50 text-indigo-700'
+                            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                        }`}
+                    >
+                        <Icon size={19} strokeWidth={1.8}/>
+                        <span className='capitalize'>{i.label}</span>
+                    </NavLink>
+                )
+            })}
+        </nav>
     </aside>
   )
 }
